@@ -40,6 +40,7 @@ import com.bunbeauty.fooddelivery.domain.feature.order.model.v3.PostOrderV3
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.CalculateOrderTotalUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.FindDeliveryZoneByCityUuidAndCoordinatesUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.GetDeliveryCostUseCase
+import com.bunbeauty.fooddelivery.domain.feature.order.usecase.GetPickupOrderListUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.IsOrderAvailableUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.IsOrderAvailableV2UseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.UpdateOrderStatusUseCase
@@ -66,7 +67,8 @@ class OrderService(
     private val isOrderAvailableV2UseCase: IsOrderAvailableV2UseCase,
     private val isOrderAvailableUseCase: IsOrderAvailableUseCase,
     private val companyRepository: CompanyRepository,
-    private val updateOrderStatusUseCase: UpdateOrderStatusUseCase
+    private val updateOrderStatusUseCase: UpdateOrderStatusUseCase,
+    private val getPickupOrderListUseCase: GetPickupOrderListUseCase
 ) : CoroutineScope {
 
     private val codesCount = CODE_LETTERS.length * CODE_NUMBER_COUNT
@@ -180,6 +182,14 @@ class OrderService(
     suspend fun getOrderListByCafeUuid2(cafeUuid: String): List<GetCafeOrder> {
         val limitTime = DateTime.now().withTimeAtStartOfDay().minusDays(ORDER_HISTORY_DAY_COUNT).millis
         return orderRepository.getLightOrder(
+            cafeUuid = cafeUuid,
+            limitTime = limitTime
+        ).map(mapLightOrderToGetCafeOrder)
+    }
+
+    suspend fun getPickupOrderListByCafeUuid(cafeUuid: String): List<GetCafeOrder> {
+        val limitTime = DateTime.now().withTimeAtStartOfDay().minusDays(ORDER_HISTORY_DAY_COUNT).millis
+        return getPickupOrderListUseCase(
             cafeUuid = cafeUuid,
             limitTime = limitTime
         ).map(mapLightOrderToGetCafeOrder)

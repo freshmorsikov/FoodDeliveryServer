@@ -10,6 +10,7 @@ import com.bunbeauty.fooddelivery.domain.feature.order.usecase.CalculateOrderTot
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.CheckIsPointInPolygonUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.FindDeliveryZoneByCityUuidAndCoordinatesUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.GetDeliveryCostUseCase
+import com.bunbeauty.fooddelivery.domain.feature.order.usecase.GetPickupOrderListUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.IsOrderAvailableUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.IsOrderAvailableV2UseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.UpdateOrderStatusUseCase
@@ -57,6 +58,11 @@ val orderModule = module(createdAtStart = true) {
         )
     }
     factory {
+        GetPickupOrderListUseCase(
+            orderRepository = get()
+        )
+    }
+    factory {
         UpdateOrderStatusUseCase(
             orderRepository = get(),
             sendPickupClientNotificationUseCase = get()
@@ -80,7 +86,8 @@ val orderModule = module(createdAtStart = true) {
             isOrderAvailableV2UseCase = get(),
             companyRepository = get(),
             isOrderAvailableUseCase = get(),
-            updateOrderStatusUseCase = get()
+            updateOrderStatusUseCase = get(),
+            getPickupOrderListUseCase = get()
         )
     }
     single { OrderRepository() }
