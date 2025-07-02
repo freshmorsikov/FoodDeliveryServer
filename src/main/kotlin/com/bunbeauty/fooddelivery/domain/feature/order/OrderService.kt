@@ -50,6 +50,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.joda.time.DateTime
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.flow.filter
 
 private const val CAFE_IS_CLOSED_CODE = 901
 
@@ -270,6 +271,12 @@ class OrderService(
 
     fun observeCafeOrderUpdates(cafeUuid: String): Flow<GetCafeOrder> {
         return orderRepository.getOrderFlowByKey(cafeUuid).map(mapOrderToCafeOrder)
+    }
+
+    fun observeCafeOrderUpdatesOnlyPickup(cafeUuid: String): Flow<GetCafeOrder> {
+        return orderRepository.getOrderFlowByKey(cafeUuid)
+            .filter { order -> !order.isDelivery }
+            .map(mapOrderToCafeOrder)
     }
 
     fun clientDisconnect(clientUserUuid: String) {
