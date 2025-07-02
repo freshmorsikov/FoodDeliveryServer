@@ -46,6 +46,7 @@ fun Application.configureOrderRouting() {
             patchOrder()
             getClientOrders()
             getCafeOrders()
+            getCafePickupOrders()
             getCafeOrderDetails()
             observeClientOrders()
             observeManagerOrders()
@@ -105,6 +106,17 @@ private fun Route.getCafeOrders() {
         managerGetListResult {
             val cafeUuid = call.getParameter(CAFE_UUID_PARAMETER)
             orderService.getOrderListByCafeUuid2(cafeUuid)
+        }
+    }
+}
+
+private fun Route.getCafePickupOrders() {
+    val orderService: OrderService by inject()
+
+    get("/order/pickup") {
+        managerGetListResult {
+            val cafeUuid = call.getParameter(CAFE_UUID_PARAMETER)
+            orderService.getPickupOrderListByCafeUuid(cafeUuid)
         }
     }
 }

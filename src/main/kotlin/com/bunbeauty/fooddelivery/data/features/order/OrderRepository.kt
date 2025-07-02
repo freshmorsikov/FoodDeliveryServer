@@ -10,6 +10,7 @@ import com.bunbeauty.fooddelivery.data.entity.order.OrderEntity
 import com.bunbeauty.fooddelivery.data.entity.order.OrderProductAdditionEntity
 import com.bunbeauty.fooddelivery.data.entity.order.OrderProductEntity
 import com.bunbeauty.fooddelivery.data.features.order.mapper.mapOrderEntity
+import com.bunbeauty.fooddelivery.data.features.order.mapper.mapOrderTableToLightOrder
 import com.bunbeauty.fooddelivery.data.session.SessionHandler
 import com.bunbeauty.fooddelivery.data.table.CityTable
 import com.bunbeauty.fooddelivery.data.table.cafe.CafeTable
@@ -172,17 +173,24 @@ class OrderRepository {
             (OrderTable.cafe eq cafeUuid.toUuid()) and
                 (OrderTable.time greater limitTime)
         }.orderBy(OrderTable.time to SortOrder.DESC)
-            .map { orderTable ->
-                LightOrder(
-                    uuid = orderTable[OrderTable.id].value.toString(),
-                    code = orderTable[OrderTable.code],
-                    status = orderTable[OrderTable.status],
-                    time = orderTable[OrderTable.time],
-                    timeZone = orderTable[CityTable.timeZone],
-                    deferredTime = orderTable[OrderTable.deferredTime],
-                    cafeUuid = orderTable[OrderTable.cafe].value.toString()
-                )
-            }
+            .map(mapOrderTableToLightOrder)
+    }
+
+    suspend fun getLightPickupOrder(cafeUuid: String, limitTime: Long): List<LightOrder> = query {
+        (OrderTable innerJoin CafeTable innerJoin CityTable).slice(
+            OrderTable.id,
+            OrderTable.code,
+            OrderTable.status,
+            OrderTable.time,
+            CityTable.timeZone,
+            OrderTable.deferredTime,
+            OrderTable.cafe
+        ).select {
+            (OrderTable.cafe eq cafeUuid.toUuid()) and
+                (OrderTable.time greater limitTime) and
+                (OrderTable.isDelivery eq false)
+        }.orderBy(OrderTable.time to SortOrder.DESC)
+            .map(mapOrderTableToLightOrder)
     }
 
     suspend fun getOrderListByUserUuid(userUuid: String, count: Int?): List<Order> = query {
