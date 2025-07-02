@@ -49,6 +49,7 @@ fun Application.configureOrderRouting() {
             getCafeOrderDetails()
             observeClientOrders()
             observeManagerOrders()
+            observeManagerOnlyPickupOrders()
 
             postOrderV2()
             getClientOrdersV2()
@@ -148,6 +149,26 @@ private fun Route.observeManagerOrders() {
             block = {
                 val cafeUuid = call.getParameter(CAFE_UUID_PARAMETER)
                 orderService.observeCafeOrderUpdates(cafeUuid).onEach { cafeOrder ->
+                    outgoing.send(Frame.Text(json.encodeToString(cafeOrder)))
+                }.launchIn(this)
+            },
+            onSocketClose = {
+                val cafeUuid = call.getParameter(CAFE_UUID_PARAMETER)
+                orderService.userDisconnect(cafeUuid)
+            }
+        )
+    }
+}
+
+private fun Route.observeManagerOnlyPickupOrders() {
+    val orderService: OrderService by inject()
+    val json: Json by inject()
+
+    webSocket("/user/order/pickup/subscribe") {
+        managerSocket(
+            block = {
+                val cafeUuid = call.getParameter(CAFE_UUID_PARAMETER)
+                orderService.observeCafeOrderUpdatesOnlyPickup(cafeUuid).onEach { cafeOrder ->
                     outgoing.send(Frame.Text(json.encodeToString(cafeOrder)))
                 }.launchIn(this)
             },
