@@ -47,10 +47,10 @@ import com.bunbeauty.fooddelivery.service.NotificationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import org.joda.time.DateTime
 import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.flow.filter
 
 private const val CAFE_IS_CLOSED_CODE = 901
 
