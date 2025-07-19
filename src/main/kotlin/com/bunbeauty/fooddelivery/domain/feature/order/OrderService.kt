@@ -11,6 +11,7 @@ import com.bunbeauty.fooddelivery.data.features.menu.MenuProductRepository
 import com.bunbeauty.fooddelivery.data.features.order.OrderRepository
 import com.bunbeauty.fooddelivery.data.repo.CompanyRepository
 import com.bunbeauty.fooddelivery.domain.error.errorWithCode
+import com.bunbeauty.fooddelivery.domain.error.orThrowNotFoundByUserUuidError
 import com.bunbeauty.fooddelivery.domain.error.orThrowNotFoundByUuidError
 import com.bunbeauty.fooddelivery.domain.feature.cafe.model.deliveryzone.DeliveryZoneWithCafe
 import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapLightOrderToGetCafeOrder
@@ -37,6 +38,7 @@ import com.bunbeauty.fooddelivery.domain.feature.order.model.v2.PostOrderV2
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v2.cafe.GetCafeOrderDetailsV2
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v2.client.GetClientOrderV2
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v3.PostOrderV3
+import com.bunbeauty.fooddelivery.domain.feature.order.model.v4.GetCreateOrderCode
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.CalculateOrderTotalUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.FindDeliveryZoneByCityUuidAndCoordinatesUseCase
 import com.bunbeauty.fooddelivery.domain.feature.order.usecase.GetDeliveryCostUseCase
@@ -179,6 +181,44 @@ class OrderService(
         return order.mapOrderToV2(orderTotal)
     }
 
+    suspend fun createOrderV4(clientUserUuid: String, postOrder: PostOrderV3): GetCreateOrderCode {
+        if (postOrder.orderProducts.isEmpty()) {
+            productListIsEmptyError()
+        }
+
+        val orderInfo = createOrderInfoV2(
+            postOrder = postOrder,
+            clientUserUuid = clientUserUuid
+        )
+
+        if (!isOrderAvailableV2UseCase(
+                companyUuid = orderInfo.companyUuid,
+                cafeUuid = orderInfo.cafeUuid
+            )
+        ) {
+            cafeIsClosedError()
+        }
+
+        val insertOrder = postOrder.mapPostOrderV3(orderInfo)
+
+        val order = orderRepository.insertOrderV3(insertOrder)
+
+        orderRepository.updateSession(
+            key = order.cafeWithCity.cafeWithZones.uuid,
+            order = order
+        )
+
+        notificationService.sendNotification(
+            cafeUuid = orderInfo.cafeUuid,
+            orderCode = order.code
+        )
+
+        return GetCreateOrderCode(
+            code = order.code,
+            uuid = order.uuid
+        )
+    }
+
     suspend fun getOrderListByCafeUuid2(cafeUuid: String): List<GetCafeOrder> {
         val limitTime = DateTime.now().withTimeAtStartOfDay().minusDays(ORDER_HISTORY_DAY_COUNT).millis
         return orderRepository.getLightOrder(
@@ -228,6 +268,17 @@ class OrderService(
             val orderTotal = calculateOrderTotalUseCase(order)
             order.mapOrderToV2(orderTotal)
         }
+    }
+
+    suspend fun getLastOrder(
+        userUuid: String
+    ): GetClientOrderV2 {
+        val order = orderRepository.getLastOrderByUserUuid(
+            userUuid = userUuid
+        ).orThrowNotFoundByUserUuidError(uuid = userUuid)
+
+        val orderTotal = calculateOrderTotalUseCase(order)
+        return order.mapOrderToV2(orderTotal)
     }
 
     suspend fun getOrderByUuid(uuid: String): GetCafeOrderDetails {

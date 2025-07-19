@@ -12,7 +12,9 @@ import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.client.GetClient
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v2.PostOrderV2
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v2.client.GetClientOrderV2
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v3.PostOrderV3
+import com.bunbeauty.fooddelivery.domain.feature.order.model.v4.GetCreateOrderCode
 import com.bunbeauty.fooddelivery.routing.extension.clientGetListResult
+import com.bunbeauty.fooddelivery.routing.extension.clientGetResult
 import com.bunbeauty.fooddelivery.routing.extension.clientSocket
 import com.bunbeauty.fooddelivery.routing.extension.clientWithBody
 import com.bunbeauty.fooddelivery.routing.extension.getParameter
@@ -58,6 +60,9 @@ fun Application.configureOrderRouting() {
             observeClientOrdersV2()
 
             postOrderV3()
+
+            postOrderV4()
+            getClientLastOrder()
         }
     }
 }
@@ -222,6 +227,18 @@ private fun Route.getClientOrdersV2() {
     }
 }
 
+private fun Route.getClientLastOrder() {
+    val orderService: OrderService by inject()
+
+    get("/client/last_order") {
+        clientGetResult { request ->
+            orderService.getLastOrder(
+                userUuid = request.jwtUser.uuid
+            )
+        }
+    }
+}
+
 private fun Route.getCafeOrderDetailsV2() {
     val orderService: OrderService by inject()
 
@@ -251,12 +268,26 @@ private fun Route.observeClientOrdersV2() {
     }
 }
 
+@Deprecated("Use postOrderV4. V3 last used 2.7.2 release")
 private fun Route.postOrderV3() {
     val orderService: OrderService by inject()
 
     post("/v3/order") {
         clientWithBody<PostOrderV3, GetClientOrderV2> { bodyRequest ->
             orderService.createOrderV3(
+                bodyRequest.request.jwtUser.uuid,
+                bodyRequest.body
+            )
+        }
+    }
+}
+
+private fun Route.postOrderV4() {
+    val orderService: OrderService by inject()
+
+    post("/v4/order") {
+        clientWithBody<PostOrderV3, GetCreateOrderCode> { bodyRequest ->
+            orderService.createOrderV4(
                 bodyRequest.request.jwtUser.uuid,
                 bodyRequest.body
             )

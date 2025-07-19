@@ -17,7 +17,8 @@ object FakeCafe {
         cityUuid: String = "",
         isVisible: Boolean = true,
         workType: WorkType = WorkType.CLOSED,
-        workload: Workload = Workload.LOW
+        workload: Workload = Workload.LOW,
+        additionalUtensils: Boolean = true
     ) = Cafe(
         uuid = uuid,
         fromTime = fromTime,
@@ -30,6 +31,7 @@ object FakeCafe {
         cityUuid = cityUuid,
         isVisible = isVisible,
         workload = workload,
-        workType = workType
+        workType = workType,
+        additionalUtensils = additionalUtensils
     )
 }

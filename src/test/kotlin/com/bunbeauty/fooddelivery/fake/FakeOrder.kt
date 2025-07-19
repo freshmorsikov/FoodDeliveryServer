@@ -57,7 +57,8 @@ object FakeOrder {
                     isVisible = true,
                     workload = Workload.LOW,
                     workType = WorkType.CLOSED,
-                    zones = emptyList()
+                    zones = emptyList(),
+                    additionalUtensils = false
                 ),
                 city = City(
                     uuid = "",

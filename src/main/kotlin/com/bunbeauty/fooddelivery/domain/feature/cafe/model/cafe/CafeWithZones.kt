@@ -17,5 +17,6 @@ class CafeWithZones(
     val isVisible: Boolean,
     val workType: WorkType,
     val workload: Workload,
-    val zones: List<DeliveryZone>
+    val zones: List<DeliveryZone>,
+    val additionalUtensils: Boolean
 )
