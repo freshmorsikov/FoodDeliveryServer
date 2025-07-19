@@ -11,5 +11,6 @@ class InsertCafe(
     val longitude: Double,
     val address: String,
     val cityUuid: UUID,
-    val isVisible: Boolean
+    val isVisible: Boolean,
+    val additionalUtensils: Boolean
 )

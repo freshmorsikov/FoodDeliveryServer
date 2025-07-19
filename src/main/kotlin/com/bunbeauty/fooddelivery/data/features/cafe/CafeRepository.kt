@@ -28,6 +28,7 @@ class CafeRepository {
             address = insertCafe.address
             city = CityEntity[insertCafe.cityUuid]
             isVisible = insertCafe.isVisible
+            additionalUtensils = insertCafe.additionalUtensils
         }.mapCafeWithZonesEntity()
     }
 
@@ -46,7 +47,8 @@ class CafeRepository {
                 CafeTable.isVisible,
                 CafeTable.workType,
                 CafeTable.workload,
-                CafeTable.city
+                CafeTable.city,
+                CafeTable.additionalUtensils
             ).select {
                 CafeTable.id eq uuid
             }.singleOrNull()?.mapCafeEntityToCafe()

@@ -12,5 +12,6 @@ class PostCafe(
     val longitude: Double,
     val address: String,
     val cityUuid: String,
-    val isVisible: Boolean
+    val isVisible: Boolean,
+    val additionalUtensils: Boolean
 )
