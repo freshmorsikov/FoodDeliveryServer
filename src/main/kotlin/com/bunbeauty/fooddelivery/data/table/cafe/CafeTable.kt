@@ -18,7 +18,7 @@ object CafeTable : UUIDTable() {
     val isVisible = bool("isVisible")
     val workType = enumeration("workType", WorkType::class).default(WorkType.DELIVERY_AND_PICKUP)
     val workload = enumeration("workload", Workload::class).default(Workload.LOW)
-    val additionalUtensils = bool("additionalUtensils")
+    val additionalUtensils = bool("additionalUtensils").default(defaultValue = false)
 
     val city = reference("city", CityTable)
 }
