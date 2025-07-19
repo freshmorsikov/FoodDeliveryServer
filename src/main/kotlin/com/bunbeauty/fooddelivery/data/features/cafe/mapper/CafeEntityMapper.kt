@@ -22,7 +22,8 @@ val mapCafeWithZonesEntity: CafeEntity.() -> CafeWithZones = {
         isVisible = isVisible,
         workType = workType,
         workload = workload,
-        zones = zones.map(mapDeliveryZoneEntity)
+        zones = zones.map(mapDeliveryZoneEntity),
+        additionalUtensils = additionalUtensils
     )
 }
 
@@ -45,5 +46,6 @@ fun ResultRow.mapCafeEntityToCafe() = Cafe(
     isVisible = this[CafeTable.isVisible],
     workType = this[CafeTable.workType],
     workload = this[CafeTable.workload],
-    cityUuid = this[CafeTable.city].value.toString()
+    cityUuid = this[CafeTable.city].value.toString(),
+    additionalUtensils = this[CafeTable.additionalUtensils]
 )

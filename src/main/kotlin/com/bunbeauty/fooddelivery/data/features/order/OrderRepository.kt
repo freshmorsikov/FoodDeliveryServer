@@ -207,6 +207,15 @@ class OrderRepository {
             .map(mapOrderEntity)
     }
 
+    suspend fun getLastOrderByUserUuid(userUuid: String): Order? = query {
+        OrderEntity.find {
+            (OrderTable.clientUser eq userUuid.toUuid())
+        }.orderBy(OrderTable.time to SortOrder.DESC)
+            .limit(1)
+            .map(mapOrderEntity)
+            .singleOrNull()
+    }
+
     suspend fun getOrderCountByUserUuid(userUuid: String): Long = query {
         OrderEntity.find {
             OrderTable.clientUser eq userUuid.toUuid()

@@ -28,6 +28,7 @@ class CafeEntity(uuid: EntityID<UUID>) : UUIDEntity(uuid) {
     var isVisible: Boolean by CafeTable.isVisible
     var workType: WorkType by CafeTable.workType
     var workload: Workload by CafeTable.workload
+    var additionalUtensils: Boolean by CafeTable.additionalUtensils
 
     val streets: SizedIterable<StreetEntity> by StreetEntity referrersOn StreetTable.cafe
     val zones: SizedIterable<DeliveryZoneEntity> by DeliveryZoneEntity referrersOn DeliveryZoneTable.cafe

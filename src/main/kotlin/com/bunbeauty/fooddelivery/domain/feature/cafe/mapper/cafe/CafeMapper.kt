@@ -17,7 +17,8 @@ val mapCafeWithZones: CafeWithZones.() -> GetCafe = {
         cityUuid = cityUuid,
         isVisible = isVisible,
         workType = workType,
-        workload = workload
+        workload = workload,
+        additionalUtensils = additionalUtensils
     )
 }
 
@@ -34,6 +35,7 @@ val mapCafe: Cafe.() -> GetCafe = {
         cityUuid = cityUuid,
         isVisible = isVisible,
         workType = workType,
-        workload = workload
+        workload = workload,
+        additionalUtensils = additionalUtensils
     )
 }
