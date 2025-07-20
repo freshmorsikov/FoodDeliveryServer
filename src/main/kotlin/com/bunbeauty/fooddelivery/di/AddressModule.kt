@@ -6,6 +6,7 @@ import com.bunbeauty.fooddelivery.domain.feature.address.AddressService
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
@@ -42,6 +43,12 @@ val addressModule = module(createdAtStart = true) {
                 url {
                     protocol = URLProtocol.HTTPS
                 }
+            }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = 59000
+                connectTimeoutMillis = 59000
+                socketTimeoutMillis = 59000
             }
         }
     }
