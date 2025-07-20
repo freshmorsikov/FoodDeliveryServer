@@ -213,7 +213,7 @@ class OrderService(
             cafeUuid = orderInfo.cafeUuid,
             orderCode = order.code
         )
-        delay(20000)
+        delay(50000)
 
         return GetCreateOrderCode(
             code = order.code,
