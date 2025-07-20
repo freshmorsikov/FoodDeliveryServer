@@ -54,6 +54,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import org.joda.time.DateTime
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.delay
 
 private const val CAFE_IS_CLOSED_CODE = 901
 
@@ -212,6 +213,7 @@ class OrderService(
             cafeUuid = orderInfo.cafeUuid,
             orderCode = order.code
         )
+        delay(20000)
 
         return GetCreateOrderCode(
             code = order.code,
