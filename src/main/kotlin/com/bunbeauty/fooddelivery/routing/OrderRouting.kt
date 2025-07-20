@@ -287,7 +287,7 @@ private fun Route.postOrderV4() {
     val orderService: OrderService by inject()
 
     post("/v4/order") {
-        withTimeout(timeMillis = 60000) {
+        withTimeout(timeMillis = 60000 + 60000) {
             clientWithBody<PostOrderV3, GetCreateOrderCode> { bodyRequest ->
                 orderService.createOrderV4(
                     bodyRequest.request.jwtUser.uuid,
