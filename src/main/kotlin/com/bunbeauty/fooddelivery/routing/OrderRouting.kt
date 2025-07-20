@@ -35,6 +35,7 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
@@ -286,11 +287,13 @@ private fun Route.postOrderV4() {
     val orderService: OrderService by inject()
 
     post("/v4/order") {
-        clientWithBody<PostOrderV3, GetCreateOrderCode> { bodyRequest ->
-            orderService.createOrderV4(
-                bodyRequest.request.jwtUser.uuid,
-                bodyRequest.body
-            )
+        withTimeout(timeMillis = 60000) {
+            clientWithBody<PostOrderV3, GetCreateOrderCode> { bodyRequest ->
+                orderService.createOrderV4(
+                    bodyRequest.request.jwtUser.uuid,
+                    bodyRequest.body
+                )
+            }
         }
     }
 }
