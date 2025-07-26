@@ -2,10 +2,9 @@ package com.bunbeauty.fooddelivery.routing.extension
 
 import com.bunbeauty.fooddelivery.routing.model.BodyRequest
 import com.bunbeauty.fooddelivery.routing.model.Request
-import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.manager(
+suspend inline fun RoutingContext.manager(
     block: (Request) -> Unit
 ) {
     checkRights(block) { jwtUser ->
@@ -13,7 +12,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.manager(
     }
 }
 
-suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.managerGetResult(
+suspend inline fun <reified R : Any> RoutingContext.managerGetResult(
     block: (Request) -> R
 ) {
     manager { request ->
@@ -23,7 +22,7 @@ suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.mana
     }
 }
 
-suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.managerGetListResult(
+suspend inline fun <reified R : Any> RoutingContext.managerGetListResult(
     block: (Request) -> List<R>
 ) {
     manager { request ->
@@ -33,7 +32,7 @@ suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.mana
     }
 }
 
-suspend inline fun <reified B, reified R : Any> PipelineContext<Unit, ApplicationCall>.managerWithBody(
+suspend inline fun <reified B, reified R : Any> RoutingContext.managerWithBody(
     block: (BodyRequest<B>) -> R
 ) {
     manager { request ->

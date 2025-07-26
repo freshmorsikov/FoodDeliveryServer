@@ -13,5 +13,6 @@ class PatchCafe(
     val address: String? = null,
     val isVisible: Boolean? = null,
     val workType: String? = null,
-    val workload: String? = null
+    val workload: String? = null,
+    val additionalUtensils: Boolean? = null
 )

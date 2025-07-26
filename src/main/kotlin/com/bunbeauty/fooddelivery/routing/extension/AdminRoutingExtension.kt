@@ -2,16 +2,15 @@ package com.bunbeauty.fooddelivery.routing.extension
 
 import com.bunbeauty.fooddelivery.routing.model.BodyRequest
 import com.bunbeauty.fooddelivery.routing.model.Request
-import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.admin(block: (Request) -> Unit) {
+suspend inline fun RoutingContext.admin(block: (Request) -> Unit) {
     checkRights(block) { jwtUser ->
         jwtUser.isAdmin()
     }
 }
 
-suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.adminGetResult(block: (Request) -> R) {
+suspend inline fun <reified R : Any> RoutingContext.adminGetResult(block: (Request) -> R) {
     admin { request ->
         getResult {
             block(request)
@@ -19,7 +18,7 @@ suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.admi
     }
 }
 
-suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.getAdminWithListResult(block: (Request) -> List<R>) {
+suspend inline fun <reified R : Any> RoutingContext.getAdminWithListResult(block: (Request) -> List<R>) {
     admin { request ->
         getListResult {
             block(request)
@@ -27,7 +26,7 @@ suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.getA
     }
 }
 
-suspend inline fun <reified B, reified R : Any> PipelineContext<Unit, ApplicationCall>.adminWithBody(
+suspend inline fun <reified B, reified R : Any> RoutingContext.adminWithBody(
     block: (BodyRequest<B>) -> R
 ) {
     admin { request ->

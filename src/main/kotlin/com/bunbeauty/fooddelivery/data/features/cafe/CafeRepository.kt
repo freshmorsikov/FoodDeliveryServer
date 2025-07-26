@@ -88,6 +88,7 @@ class CafeRepository {
             isVisible = updateCafe.isVisible ?: isVisible
             workType = updateCafe.workType ?: workType
             workload = updateCafe.workload ?: workload
+            additionalUtensils = updateCafe.additionalUtensils ?: additionalUtensils
         }?.mapCafeWithZonesEntity()
     }
 }
