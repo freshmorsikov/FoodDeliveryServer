@@ -2,16 +2,15 @@ package com.bunbeauty.fooddelivery.routing.extension
 
 import com.bunbeauty.fooddelivery.routing.model.BodyRequest
 import com.bunbeauty.fooddelivery.routing.model.Request
-import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.client(block: (Request) -> Unit) {
+suspend inline fun RoutingContext.client(block: (Request) -> Unit) {
     checkRights(block) { jwtUser ->
         jwtUser.isClient()
     }
 }
 
-suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.clientGetResult(block: (Request) -> R) {
+suspend inline fun <reified R : Any> RoutingContext.clientGetResult(block: (Request) -> R) {
     client { request ->
         getResult {
             block(request)
@@ -19,7 +18,7 @@ suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.clie
     }
 }
 
-suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.clientGetListResult(
+suspend inline fun <reified R : Any> RoutingContext.clientGetListResult(
     block: (Request) -> List<R>
 ) {
     client { request ->
@@ -29,7 +28,7 @@ suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.clie
     }
 }
 
-suspend inline fun <reified B, reified R : Any> PipelineContext<Unit, ApplicationCall>.clientWithBody(
+suspend inline fun <reified B, reified R : Any> RoutingContext.clientWithBody(
     block: (BodyRequest<B>) -> R
 ) {
     client { request ->

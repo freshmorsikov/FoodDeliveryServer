@@ -20,6 +20,7 @@ val mapPatchCafe: PatchCafe.() -> UpdateCafe = {
         },
         workload = workload?.let { workload ->
             Workload.valueOf(workload)
-        }
+        },
+        additionalUtensils = additionalUtensils
     )
 }

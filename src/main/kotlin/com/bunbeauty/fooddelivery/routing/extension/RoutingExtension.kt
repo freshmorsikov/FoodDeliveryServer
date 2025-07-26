@@ -12,14 +12,12 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.auth.authentication
 import io.ktor.server.plugins.origin
-import io.ktor.server.request.path
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import java.sql.DriverManager.println
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.safely(block: () -> Unit) {
-    println("Request: ${context.request.path()}")
+suspend inline fun RoutingContext.safely(block: () -> Unit) {
     try {
         block()
     } catch (exception: Exception) {
@@ -44,21 +42,21 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.safely(block: () -> Un
     }
 }
 
-suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.getResult(block: () -> R) {
+suspend inline fun <reified R : Any> RoutingContext.getResult(block: () -> R) {
     safely {
         val result = block()
         call.respondOk(result)
     }
 }
 
-suspend inline fun <reified R : Any> PipelineContext<Unit, ApplicationCall>.getListResult(block: () -> List<R>) {
+suspend inline fun <reified R : Any> RoutingContext.getListResult(block: () -> List<R>) {
     safely {
         val listResult = block()
         call.respondOk(listResult.toListWrapper())
     }
 }
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.checkRights(
+suspend inline fun RoutingContext.checkRights(
     block: (Request) -> Unit,
     checkBlock: (JwtUser) -> Boolean
 ) {
@@ -76,7 +74,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.checkRights(
     }
 }
 
-suspend inline fun <reified B, reified R : Any> PipelineContext<Unit, ApplicationCall>.withBody(block: (B) -> R) {
+suspend inline fun <reified B, reified R : Any> RoutingContext.withBody(block: (B) -> R) {
     safely {
         val bodyModel: B = call.receive()
         val result = block(bodyModel)
@@ -84,7 +82,7 @@ suspend inline fun <reified B, reified R : Any> PipelineContext<Unit, Applicatio
     }
 }
 
-suspend inline fun <reified B, reified R : Any> PipelineContext<Unit, ApplicationCall>.handleRequestWithBody(
+suspend inline fun <reified B, reified R : Any> RoutingContext.handleRequestWithBody(
     request: Request,
     block: (BodyRequest<B>) -> R
 ) {
@@ -102,11 +100,11 @@ suspend inline fun <reified B, reified R : Any> PipelineContext<Unit, Applicatio
     }
 }
 
-suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.respond(block: () -> T) {
+suspend inline fun <reified T : Any> RoutingContext.respond(block: () -> T) {
     call.respond(block())
 }
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.deleteByUserUuid(
+suspend inline fun RoutingContext.deleteByUserUuid(
     request: Request,
     deleteBlock: (String) -> Unit
 ) {
@@ -114,7 +112,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.deleteByUserUuid(
     call.respondNoContent()
 }
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.deleteByUuid(
+suspend inline fun RoutingContext.deleteByUuid(
     deleteBlock: (String) -> Unit
 ) {
     val uuid = call.getParameter(UUID_PARAMETER)
@@ -122,7 +120,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.deleteByUuid(
     call.respondNoContent()
 }
 
-val PipelineContext<Unit, ApplicationCall>.clientIp: String
+val RoutingContext.clientIp: String
     get() = call.request.origin.remoteAddress
 
 suspend inline fun ApplicationCall.respondOk() {

@@ -16,6 +16,7 @@ import com.bunbeauty.fooddelivery.domain.feature.order.model.v4.GetCreateOrderCo
 import com.bunbeauty.fooddelivery.routing.extension.clientGetListResult
 import com.bunbeauty.fooddelivery.routing.extension.clientGetResult
 import com.bunbeauty.fooddelivery.routing.extension.clientSocket
+import com.bunbeauty.fooddelivery.routing.extension.clientSse
 import com.bunbeauty.fooddelivery.routing.extension.clientWithBody
 import com.bunbeauty.fooddelivery.routing.extension.getParameter
 import com.bunbeauty.fooddelivery.routing.extension.getResult
@@ -24,18 +25,18 @@ import com.bunbeauty.fooddelivery.routing.extension.managerGetResult
 import com.bunbeauty.fooddelivery.routing.extension.managerSocket
 import com.bunbeauty.fooddelivery.routing.extension.managerWithBody
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import io.ktor.server.sse.sse
 import io.ktor.server.websocket.webSocket
+import io.ktor.sse.ServerSentEvent
 import io.ktor.websocket.Frame
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 
@@ -58,6 +59,7 @@ fun Application.configureOrderRouting() {
             getClientOrdersV2()
             getCafeOrderDetailsV2()
             observeClientOrdersV2()
+            observeClientOrdersV3()
 
             postOrderV3()
 
@@ -259,6 +261,24 @@ private fun Route.observeClientOrdersV2() {
             block = { request ->
                 orderService.observeClientOrderUpdatesV2(clientUserUuid = request.jwtUser.uuid).onEach { clientOrder ->
                     outgoing.send(Frame.Text(json.encodeToString(clientOrder)))
+                }.launchIn(this)
+            },
+            closeBlock = { request ->
+                orderService.clientDisconnect(request.jwtUser.uuid)
+            }
+        )
+    }
+}
+
+private fun Route.observeClientOrdersV3() {
+    val orderService: OrderService by inject()
+    val json: Json by inject()
+
+    sse("/client/order/v3/subscribe") {
+        clientSse(
+            block = { request ->
+                orderService.observeClientOrderUpdatesV2(clientUserUuid = request.jwtUser.uuid).onEach { clientOrder ->
+                    send(ServerSentEvent(json.encodeToString(clientOrder)))
                 }.launchIn(this)
             },
             closeBlock = { request ->

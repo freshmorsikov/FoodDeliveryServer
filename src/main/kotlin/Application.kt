@@ -5,6 +5,7 @@ import com.bunbeauty.fooddelivery.data.DatabaseFactory
 import com.bunbeauty.fooddelivery.di.configureKoin
 import com.bunbeauty.fooddelivery.plugins.configureSerialization
 import com.bunbeauty.fooddelivery.plugins.configureSockets
+import com.bunbeauty.fooddelivery.plugins.configureSse
 import com.bunbeauty.fooddelivery.routing.configureRouting
 import com.bunbeauty.fooddelivery.task.scheduleTasks
 import com.google.auth.oauth2.GoogleCredentials
@@ -35,12 +36,15 @@ private fun Application.configureApp() {
     configureSockets()
     configureSerialization()
     configureKoin()
+
     val jwtService: IJwtService by inject()
     install(Authentication) {
         jwt {
             jwtService.configureAuth(this)
         }
     }
+
+    configureSse()
     configureRouting()
     scheduleTasks()
 }
