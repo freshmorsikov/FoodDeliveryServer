@@ -19,6 +19,7 @@ import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapOrderToCafeOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapOrderToCafeOrderDetails
 import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapOrderToCafeOrderDetailsV2
+import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapOrderToGetClientLightOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapOrderToV2
 import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapPostOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.mapper.mapPostOrderProductToOrderProduct
@@ -31,6 +32,7 @@ import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.PatchOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.PostOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.cafe.GetCafeOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.cafe.GetCafeOrderDetails
+import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.client.GetClientLightOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.client.GetClientOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.client.GetClientOrderUpdate
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v2.OrderInfoV2
@@ -234,16 +236,6 @@ class OrderService(
         ).map(mapLightOrderToGetCafeOrder)
     }
 
-    suspend fun getOrderListByUserUuid(userUuid: String, count: Int?): List<GetClientOrder> {
-        return orderRepository.getOrderListByUserUuid(
-            userUuid = userUuid,
-            count = count
-        ).map { order ->
-            val orderTotal = calculateOrderTotalUseCase(order)
-            order.mapOrder(orderTotal)
-        }
-    }
-
     suspend fun getOrderListByUserUuidV2(
         userUuid: String,
         count: Int?,
@@ -266,6 +258,25 @@ class OrderService(
         return orderEntityList.map { order ->
             val orderTotal = calculateOrderTotalUseCase(order)
             order.mapOrderToV2(orderTotal)
+        }
+    }
+
+    suspend fun getClientOrderByUserUuid(
+        orderUuid: String
+    ): GetClientOrderV2 {
+        val order = orderRepository.getOrderByUuid(orderUuid = orderUuid)
+            .orThrowNotFoundByUuidError(orderUuid)
+
+        val orderTotal = calculateOrderTotalUseCase(order)
+        return order.mapOrderToV2(orderTotal)
+    }
+
+    suspend fun getLightOrderListByUserUuid(userUuid: String, count: Int?): List<GetClientLightOrder> {
+        return orderRepository.getLightOrderListByUserUuid(
+            userUuid = userUuid,
+            count = count
+        ).map { order ->
+            order.mapOrderToGetClientLightOrder()
         }
     }
 

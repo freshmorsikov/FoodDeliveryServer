@@ -47,7 +47,6 @@ fun Application.configureOrderRouting() {
         authenticate {
             postOrder()
             patchOrder()
-            getClientOrders()
             getCafeOrders()
             getCafePickupOrders()
             getCafeOrderDetails()
@@ -57,6 +56,8 @@ fun Application.configureOrderRouting() {
 
             postOrderV2()
             getClientOrdersV2()
+            getClientOrderLightList()
+            getClientOrder()
             getCafeOrderDetailsV2()
             observeClientOrdersV2()
             observeClientOrdersV3()
@@ -90,18 +91,6 @@ private fun Route.patchOrder() {
         managerWithBody<PatchOrder, GetCafeOrder> { bodyRequest ->
             val orderUuid = call.getParameter(UUID_PARAMETER)
             orderService.changeOrder(orderUuid, bodyRequest.body)
-        }
-    }
-}
-
-@Deprecated("Use getClientOrdersV2")
-private fun Route.getClientOrders() {
-    val orderService: OrderService by inject()
-
-    get("/client/order") {
-        clientGetListResult { request ->
-            val count = call.parameters[COUNT_PARAMETER]?.toIntOrNull()
-            orderService.getOrderListByUserUuid(request.jwtUser.uuid, count)
         }
     }
 }
@@ -213,6 +202,10 @@ private fun Route.postOrderV2() {
     }
 }
 
+@Deprecated(
+    message = "last release 2.7.4",
+    replaceWith = ReplaceWith("replace with getClientOrderLightList for OrderListRoute and getClientOrder for OrderDetailsRoute")
+)
 private fun Route.getClientOrdersV2() {
     val orderService: OrderService by inject()
 
@@ -224,6 +217,33 @@ private fun Route.getClientOrdersV2() {
                 userUuid = request.jwtUser.uuid,
                 count = count,
                 orderUuid = uuid
+            )
+        }
+    }
+}
+
+private fun Route.getClientOrder() {
+    val orderService: OrderService by inject()
+
+    get("/client/order") {
+        clientGetResult { request ->
+            val uuid = call.getParameter(UUID_PARAMETER)
+            orderService.getClientOrderByUserUuid(
+                orderUuid = uuid
+            )
+        }
+    }
+}
+
+private fun Route.getClientOrderLightList() {
+    val orderService: OrderService by inject()
+
+    get("/client/order/light/list") {
+        clientGetListResult { request ->
+            val count = call.parameters[COUNT_PARAMETER]?.toIntOrNull()
+            orderService.getLightOrderListByUserUuid(
+                userUuid = request.jwtUser.uuid,
+                count = count
             )
         }
     }

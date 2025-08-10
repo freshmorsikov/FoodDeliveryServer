@@ -207,6 +207,28 @@ class OrderRepository {
             .map(mapOrderEntity)
     }
 
+    suspend fun getLightOrderListByUserUuid(userUuid: String, count: Int?): List<LightOrder> = query {
+        (OrderTable innerJoin CafeTable innerJoin CityTable).slice(
+            OrderTable.id,
+            OrderTable.code,
+            OrderTable.status,
+            OrderTable.time,
+            CityTable.timeZone,
+            OrderTable.deferredTime,
+            OrderTable.cafe
+        ).select {
+            (OrderTable.clientUser eq userUuid.toUuid())
+        }.orderBy(OrderTable.time to SortOrder.DESC)
+            .let { orderEntityList ->
+                if (count != null) {
+                    orderEntityList.limit(count)
+                } else {
+                    orderEntityList
+                }
+            }
+            .map(mapOrderTableToLightOrder)
+    }
+
     suspend fun getLastOrderByUserUuid(userUuid: String): Order? = query {
         OrderEntity.find {
             (OrderTable.clientUser eq userUuid.toUuid())
