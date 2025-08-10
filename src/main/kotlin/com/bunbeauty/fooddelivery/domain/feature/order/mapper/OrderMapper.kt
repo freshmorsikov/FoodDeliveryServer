@@ -7,6 +7,7 @@ import com.bunbeauty.fooddelivery.domain.feature.order.model.Order
 import com.bunbeauty.fooddelivery.domain.feature.order.model.OrderTotal
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.cafe.GetCafeOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.cafe.GetCafeOrderDetails
+import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.client.GetClientLightOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v1.client.GetClientOrder
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v2.cafe.GetCafeOrderDetailsV2
 import com.bunbeauty.fooddelivery.domain.feature.order.model.v2.client.GetClientOrderV2
@@ -57,6 +58,16 @@ val mapOrderToV2: Order.(OrderTotal) -> GetClientOrderV2 = { orderTotal ->
                 oderProduct.mapOrderProduct(uuid, orderProductTotal)
             }
         }
+    )
+}
+
+val mapOrderToGetClientLightOrder: LightOrder.() -> GetClientLightOrder = {
+    GetClientLightOrder(
+        uuid = uuid,
+        code = code,
+        status = status,
+        time = time,
+        timeZone = timeZone
     )
 }
 
